@@ -6,38 +6,29 @@ import java.util.Objects;
 
 public class Revision extends Trabajo {
 
-    private static final float FACTOR_HORA;
+    private static final float FACTOR_HORA = 35f;
 
     public Revision(Cliente cliente, Vehiculo vehiculo, LocalDate fechaInicio) {
-        setCliente(cliente);
-        setVehiculo(vehiculo);
-        setFechaInicio(fechaInicio);
-        super.horas = 0;
-        this.precioMaterial = 0;
+        super(cliente, vehiculo, fechaInicio);
     }
 
     public Revision(Revision revision) {
-        if (revision == null) {
-            throw new NullPointerException("No es posible copiar una revisión nula.");
-        }
-        this.cliente = new Cliente(revision.cliente);
-        this.vehiculo = revision.vehiculo;
-        this.fechaInicio = revision.fechaInicio;
-        this.fechaFin = revision.fechaFin;
-        this.horas = revision.horas;
-        this.precioMaterial = revision.precioMaterial;
+        super(revision);
     }
 
+    @Override
     public float getPrecioEspecifico() {
-        return precioEspecifico;
+        return (estaCerrada()) ? FACTOR_HORA * getHoras() : 0;
     }
 
     @Override
     public String toString() {
-        return String.format("Revisión de %s con %s - Inicio: %s, Fin: %s, Horas: %d, Material: %.2f",
-                cliente, vehiculo,
-                fechaInicio.format(FORMATO_FECHA),
-                (fechaFin != null ? fechaFin.format(FORMATO_FECHA) : "No cerrada"),
-                horas, precioMaterial);
+        String cadena;
+        if(!estaCerrada()) {
+            cadena = String.format("Revision -> %s - %s (%s - ): %d horas", getCliente(), getVehiculo(), getFechaInicio().format(FORMATO_FECHA), getHoras());
+        } else {
+            cadena = String.format("Revision -> %s - %s (%s - %s): %d horas, %.2f total", getCliente(), getVehiculo(), getFechaInicio().format(FORMATO_FECHA), getHoras());
+        }
+        return cadena;
     }
 }
