@@ -97,7 +97,7 @@ public abstract class Trabajo {
         this.vehiculo = vehiculo;
     }
 
-    public void anadirHoras(int horas) throws TallerMecanicoExcepcion {
+    public void añadirHoras(int horas) throws TallerMecanicoExcepcion {
         if (estaCerrada()) {
             throw new TallerMecanicoExcepcion("No se puede añadir horas, ya que el trabajo está cerrado.");
         }
