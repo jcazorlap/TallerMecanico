@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Clientes {
+public class Clientes implements org.iesalandalus.programacion.tallermecanico.modelo.negocio.IClientes {
 
     private List<Cliente> coleccionClientes;
 
@@ -14,6 +14,7 @@ public class Clientes {
         coleccionClientes = new ArrayList<>();
     }
 
+    @Override
     public List<Cliente> get() {
         List<Cliente> copiaClientes = new ArrayList<>();
         for (Cliente cliente : coleccionClientes) {
@@ -22,6 +23,7 @@ public class Clientes {
         return Collections.unmodifiableList(copiaClientes);
     }
 
+    @Override
     public void insertar(Cliente cliente) {
         if (cliente == null) {
             throw new NullPointerException("No se puede insertar un cliente nulo.");
@@ -32,6 +34,7 @@ public class Clientes {
         coleccionClientes.add(new Cliente(cliente));
     }
 
+    @Override
     public Cliente modificar(Cliente cliente, String nombre, String telefono) {
         if (cliente == null) {
             throw new NullPointerException("No se puede modificar un cliente nulo.");
@@ -52,6 +55,7 @@ public class Clientes {
         return clienteExistente;
     }
 
+    @Override
     public Cliente buscar(Cliente cliente) {
         if (cliente == null) {
             throw new NullPointerException("No se puede buscar un cliente nulo.");
@@ -60,6 +64,7 @@ public class Clientes {
         return (index != -1) ? new Cliente(coleccionClientes.get(index)) : null;
     }
 
+    @Override
     public void borrar(Cliente cliente) {
         if (cliente == null) {
             throw new NullPointerException("No se puede borrar un cliente nulo.");
