@@ -4,13 +4,14 @@ import org.iesalandalus.programacion.tallermecanico.modelo.TallerMecanicoExcepci
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Trabajo;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
+import org.iesalandalus.programacion.tallermecanico.modelo.negocio.ITrabajos;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Trabajos {
+public class Trabajos implements ITrabajos {
 
     private List<Trabajo> listaTrabajos;
 
@@ -18,10 +19,12 @@ public class Trabajos {
         listaTrabajos = new ArrayList<>();
     }
 
+    @Override
     public List<Trabajo> get() {
         return new ArrayList<>(listaTrabajos);
     }
 
+    @Override
     public List<Trabajo> get(Cliente cliente) {
         Objects.requireNonNull(cliente, "El cliente no puede ser nulo.");
         List<Trabajo> trabajosCliente = new ArrayList<>();
@@ -33,6 +36,7 @@ public class Trabajos {
         return trabajosCliente;
     }
 
+    @Override
     public List<Trabajo> get(Vehiculo vehiculo) {
         Objects.requireNonNull(vehiculo, "El vehículo no puede ser nulo.");
         List<Trabajo> trabajosVehiculo = new ArrayList<>();
@@ -44,6 +48,7 @@ public class Trabajos {
         return trabajosVehiculo;
     }
 
+    @Override
     public void insertar(Trabajo trabajo) {
         Objects.requireNonNull(trabajo, "El trabajo no puede ser nulo.");
         comprobaarTrabajo(trabajo.getCliente(), trabajo.getVehiculo(), trabajo.getFechaInicio());
@@ -58,6 +63,7 @@ public class Trabajos {
         }
     }
 
+    @Override
     public Trabajo añadirHoras(Trabajo trabajo, int horas) {
         Trabajo trabajoAbierto = getTrabajoAbierto(trabajo.getVehiculo());
         if (trabajoAbierto != null) {
@@ -76,6 +82,7 @@ public class Trabajos {
         return null;
     }
 
+    @Override
     public Trabajo añadirPrecioMaterial(Trabajo trabajo, float precioMaterial) {
         Trabajo trabajoAbierto = getTrabajoAbierto(trabajo.getVehiculo());
         if (trabajoAbierto != null) {
@@ -85,6 +92,7 @@ public class Trabajos {
         throw new TallerMecanicoExcepcion("No hay un trabajo abierto para ese vehículo.");
     }
 
+    @Override
     public Trabajo cerrar(Trabajo trabajo) {
         Trabajo trabajoAbierto = getTrabajoAbierto(trabajo.getVehiculo());
         if (trabajoAbierto != null) {
@@ -94,12 +102,14 @@ public class Trabajos {
         throw new TallerMecanicoExcepcion("No hay un trabajo abierto para ese vehículo.");
     }
 
+    @Override
     public Trabajo buscar(Trabajo trabajo) {
         Objects.requireNonNull(trabajo, "El trabajo no puede ser nulo.");
         int index = listaTrabajos.indexOf(trabajo);
         return (index != -1) ? listaTrabajos.get(index) : null;
     }
 
+    @Override
     public void borrar(Trabajo trabajo) {
         Objects.requireNonNull(trabajo, "El trabajo no puede ser nulo.");
         if (!listaTrabajos.remove(trabajo)) {
