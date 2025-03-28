@@ -31,7 +31,7 @@ public abstract class Trabajo {
         this.horas = trabajo.horas;
     }
 
-    public Trabajo copiar(Trabajo trabajo){
+    public static Trabajo copiar(Trabajo trabajo){
         Objects.requireNonNull(trabajo,"El trabajo no puede ser nulo");
         Trabajo copia = null;
         if (trabajo instanceof Revision ){

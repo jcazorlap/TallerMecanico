@@ -1,28 +1,36 @@
 package org.iesalandalus.programacion.tallermecanico.modelo.cascada;
 
+import org.iesalandalus.programacion.tallermecanico.modelo.Modelo;
 import org.iesalandalus.programacion.tallermecanico.modelo.TallerMecanicoExcepcion;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Revision;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Trabajo;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
+import org.iesalandalus.programacion.tallermecanico.modelo.dominio.*;
+import org.iesalandalus.programacion.tallermecanico.modelo.negocio.*;
 import org.iesalandalus.programacion.tallermecanico.modelo.negocio.memoria.Clientes;
+import org.iesalandalus.programacion.tallermecanico.modelo.negocio.memoria.Trabajos;
 import org.iesalandalus.programacion.tallermecanico.modelo.negocio.memoria.Vehiculos;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class ModeloCascada implements org.iesalandalus.programacion.tallermecanico.modelo.Modelo {
-    private Clientes clientes;
-    private Vehiculos vehiculos;
-    private Revisiones revisiones;
+public class ModeloCascada implements Modelo {
+    private IVehiculos vehiculos;
+    private IClientes clientes;
+    private ITrabajos trabajos;
+
+    public ModeloCascada(FabricaFuenteDatos fabricaFuenteDatos) {
+        Objects.requireNonNull(fabricaFuenteDatos, "La factoría de la fuente de datos no puede ser nula.");
+        IFuenteDatos fuenteDatos = fabricaFuenteDatos.crear();
+        clientes = fuenteDatos.crearClientes();
+        vehiculos = fuenteDatos.crearVehiculos();
+        trabajos = fuenteDatos.crearTrabajos();
+    }
 
     @Override
     public void comenzar() {
         clientes = new Clientes();
         vehiculos = new Vehiculos();
-        revisiones = new Revisiones();
-        System.out.println("El modelo ha comenzado.");
+        trabajos = new Trabajos();
     }
 
     @Override
@@ -31,23 +39,25 @@ public class ModeloCascada implements org.iesalandalus.programacion.tallermecani
     }
 
     @Override
-    public void insertar(Cliente cliente) {
+    public void insertar(Cliente cliente) throws TallerMecanicoExcepcion {
         clientes.insertar(new Cliente(cliente));
     }
 
     @Override
-    public void insertar(Vehiculo vehiculo) {
+    public void insertar(Vehiculo vehiculo) throws TallerMecanicoExcepcion {
         vehiculos.insertar(vehiculo);
     }
 
     @Override
-    public void insertar(Revision revision) {
-        Cliente clienteEncontrado = clientes.buscar(revision.getCliente());
-        Vehiculo vehiculoEncontrado = vehiculos.buscar(revision.getVehiculo());
-        if (clienteEncontrado == null || vehiculoEncontrado == null) {
-            throw new TallerMecanicoExcepcion("Cliente o vehículo no encontrado para la revisión.");
+    public void insertar(Trabajo trabajo) throws TallerMecanicoExcepcion {
+        Cliente cliente = clientes.buscar(trabajo.getCliente());
+        Vehiculo vehiculo = vehiculos.buscar(trabajo.getVehiculo());
+        if (trabajo instanceof Revision) {
+            trabajo = new Revision(cliente, vehiculo, trabajo.getFechaInicio());
+        } else if (trabajo instanceof Mecanico) {
+            trabajo = new Mecanico(cliente, vehiculo, trabajo.getFechaInicio());
         }
-        revisiones.insertar(new Revision(clienteEncontrado, vehiculoEncontrado, revision.getFechaInicio()));
+        trabajos.insertar(trabajo);
     }
 
     @Override
@@ -62,52 +72,52 @@ public class ModeloCascada implements org.iesalandalus.programacion.tallermecani
     }
 
     @Override
-    public Revision buscar(Revision revision) {
-        Revision encontrada = revisiones.buscar(revision);
-        return (encontrada != null) ? new Revision(encontrada) : null;
+    public Trabajo buscar(Trabajo trabajo) {
+        trabajo = Objects.requireNonNull(trabajos.buscar(trabajo), "No existe un trabajo igual.");
+        return Trabajo.copiar(trabajo);
     }
 
     @Override
-    public Cliente modificar(Cliente cliente, String nombre, String telefono) {
+    public boolean modificar(Cliente cliente, String nombre, String telefono) throws TallerMecanicoExcepcion {
         return clientes.modificar(cliente, nombre, telefono);
     }
 
     @Override
-    public Revision añadirHoras(Revision revision, int horas) {
-        return revisiones.añadirHoras(revision, horas);
+    public Trabajo anadirHoras(Trabajo trabajo, int horas) throws TallerMecanicoExcepcion {
+        return trabajos.añadirHoras(trabajo, horas);
     }
 
     @Override
-    public Revision añadirPrecioMaterial(Revision revision, float precioMaterial) {
-        return revisiones.añadirPrecioMaterial(revision, precioMaterial);
+    public Trabajo anadirPrecioMaterial(Trabajo trabajo, float precioMaterial) throws TallerMecanicoExcepcion, OperationNotSupportedException {
+        return trabajos.añadirPrecioMaterial(trabajo, precioMaterial);
     }
 
     @Override
-    public Revision cerrar(Revision revision, LocalDate fechaFin) {
-        return revisiones.cerrar(revision, fechaFin);
+    public Trabajo cerrar(Trabajo trabajo, LocalDate fechaFin) throws TallerMecanicoExcepcion {
+        return trabajos.cerrar(trabajo, fechaFin);
     }
 
     @Override
-    public void borrar(Cliente cliente) {
-        List<Revision> revisionesCliente = this.getTrabajos(cliente);
-        for (Revision revision : revisionesCliente) {
-            revisiones.borrar(revision);
+    public void borrar(Cliente cliente) throws TallerMecanicoExcepcion, OperationNotSupportedException {
+        List<Trabajo> trabajosCliente = trabajos.get(cliente);
+        for (Trabajo trabajo : trabajosCliente) {
+            trabajos.borrar(trabajo);
         }
         clientes.borrar(cliente);
     }
 
     @Override
-    public void borrar(Vehiculo vehiculo) {
-        List<Revision> revisionesVehiculo = getTrabajos(vehiculo);
-        for (Revision revision : revisionesVehiculo) {
-            revisiones.borrar(revision);
+    public void borrar(Vehiculo vehiculo) throws TallerMecanicoExcepcion, OperationNotSupportedException {
+        List<Trabajo> trabajosVehiculo = trabajos.get(vehiculo);
+        for (Trabajo trabajo : trabajosVehiculo) {
+            trabajos.borrar(trabajo);
         }
         vehiculos.borrar(vehiculo);
     }
 
     @Override
-    public void borrar(Revision revision) {
-        revisiones.borrar(revision);
+    public void borrar(Trabajo trabajo) throws TallerMecanicoExcepcion, OperationNotSupportedException {
+        trabajos.borrar(trabajo);
     }
 
     @Override
@@ -120,49 +130,32 @@ public class ModeloCascada implements org.iesalandalus.programacion.tallermecani
     }
 
     @Override
-    public List<Vehiculo> getVehiculos() {
-        return new ArrayList<>(vehiculos.get());
-    }
+    public List<Vehiculo> getVehiculos() {return new ArrayList<>(vehiculos.get());}
 
     @Override
     public List<Trabajo> getTrabajos() {
         List<Trabajo> copiaTrabajos = new ArrayList<>();
-        for (Trabajo trabajo : copiaTrabajos.get(vehiculo)) {
-            copiaTrabajos.add(new Trabajo(trabajo) {
-                @Override
-                public float getPrecioEspecifico() {
-                    return 0;
-                }
-            });
+        for (Trabajo trabajo : trabajos.get()) {
+            copiaTrabajos.add(Trabajo.copiar(trabajo));
         }
         return copiaTrabajos;
     }
 
     @Override
-    public List<Revision> getTrabajos(Cliente cliente) {
-        List<Trabajo> copiaTrabajos = new ArrayList<>();
-        for (Trabajo trabajo : copiaTrabajos.get(cliente)) {
-            copiaTrabajos.add(new Trabajo(trabajo) {
-                @Override
-                public float getPrecioEspecifico() {
-                    return 0;
-                }
-            });
+    public List<Trabajo> getTrabajos(Cliente cliente) {
+        List<Trabajo> trabajosCliente = new ArrayList<>();
+        for (Trabajo trabajo : trabajos.get(cliente)) {
+            trabajosCliente.add(Trabajo.copiar(trabajo));
         }
-        return copiaTrabajos;
+        return trabajosCliente;
     }
 
     @Override
-    public List<Revision> getTrabajos(Vehiculo vehiculo) {
-        List<Trabajo> copiaTrabajos = new ArrayList<>();
-        for (Trabajo trabajo : copiaTrabajos.get(vehiculo)) {
-            copiaTrabajos.add(new Trabajo(trabajo) {
-                @Override
-                public float getPrecioEspecifico() {
-                    return 0;
-                }
-            });
+    public List<Trabajo> getTrabajos(Vehiculo vehiculo) {
+        List<Trabajo> trabajosVehiculos = new ArrayList<>();
+        for (Trabajo trabajo : trabajos.get(vehiculo)) {
+            trabajosVehiculos.add(Trabajo.copiar(trabajo));
         }
-        return copiaTrabajos;
+        return trabajosVehiculos;
     }
 }

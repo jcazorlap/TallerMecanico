@@ -1,7 +1,6 @@
 package org.iesalandalus.programacion.tallermecanico.modelo;
 
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Revision;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Trabajo;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
 
@@ -13,31 +12,31 @@ public interface Modelo {
 
     void terminar();
 
-    void insertar(Cliente cliente);
+    void insertar(Cliente cliente) throws TallerMecanicoExcepcion;
 
-    void insertar(Vehiculo vehiculo);
+    void insertar(Vehiculo vehiculo) throws TallerMecanicoExcepcion;
 
-    void insertar(Revision revision);
+    void insertar(Trabajo trabajo) throws TallerMecanicoExcepcion;
 
     Cliente buscar(Cliente cliente);
 
     Vehiculo buscar(Vehiculo vehiculo);
 
-    Revision buscar(Revision revision);
+    Trabajo buscar(Trabajo trabajo);
 
-    Cliente modificar(Cliente cliente, String nombre, String telefono);
+    boolean modificar(Cliente cliente, String nombre, String telefono) throws TallerMecanicoExcepcion;
 
-    Revision añadirHoras(Revision revision, int horas);
+    Trabajo anadirHoras(Trabajo trabajo, int horas) throws TallerMecanicoExcepcion;
 
-    Revision añadirPrecioMaterial(Revision revision, float precioMaterial);
+    Trabajo anadirPrecioMaterial(Trabajo trabajo, float precioMaterial) throws TallerMecanicoExcepcion, OperationNotSupportedException;
 
-    Revision cerrar(Revision revision, LocalDate fechaFin);
+    Trabajo cerrar(Trabajo trabajo, LocalDate fechaFin) throws TallerMecanicoExcepcion;
 
-    void borrar(Cliente cliente);
+    void borrar(Cliente cliente) throws TallerMecanicoExcepcion, OperationNotSupportedException;
 
-    void borrar(Vehiculo vehiculo);
+    void borrar(Vehiculo vehiculo) throws TallerMecanicoExcepcion, OperationNotSupportedException;
 
-    void borrar(Revision revision);
+    void borrar(Trabajo trabajo) throws TallerMecanicoExcepcion, OperationNotSupportedException;
 
     List<Cliente> getClientes();
 
@@ -45,7 +44,7 @@ public interface Modelo {
 
     List<Trabajo> getTrabajos();
 
-    List<Revision> getTrabajos(Cliente cliente);
+    List<Trabajo> getTrabajos(Cliente cliente);
 
-    List<Revision> getTrabajos(Vehiculo vehiculo);
+    List<Trabajo> getTrabajos(Vehiculo vehiculo);
 }

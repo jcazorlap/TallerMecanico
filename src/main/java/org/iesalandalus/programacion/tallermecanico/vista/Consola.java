@@ -3,6 +3,7 @@ package org.iesalandalus.programacion.tallermecanico.vista;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Revision;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
+import org.iesalandalus.programacion.tallermecanico.vista.eventos.Evento;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,17 +26,17 @@ public class Consola {
 
     public static void mostrarMenu() {
         mostrarCabecera("Gestión del Taller Mecánico");
-        for (Opcion opcion : Opcion.values()) {
+        for (Evento opcion : Evento.values()) {
             System.out.println(opcion);
         }
     }
 
-    public static Opcion elegirOpcion() {
+    public static Evento elegirOpcion() {
         int numeroOpcion;
         do {
             numeroOpcion = leerEntero("Elige una opción: ");
-        } while (!Opcion.esValida(numeroOpcion));
-        return Opcion.get(numeroOpcion);
+        } while (!Evento.esValida(numeroOpcion));
+        return Evento.get(numeroOpcion);
     }
 
     private static int leerEntero(String mensaje) {
