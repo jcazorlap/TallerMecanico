@@ -4,16 +4,16 @@ import org.iesalandalus.programacion.tallermecanico.modelo.Modelo;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Revision;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
-import org.iesalandalus.programacion.tallermecanico.vista.Vista;
+import org.iesalandalus.programacion.tallermecanico.vista.texto.VistaTexto;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class Controlador {
     private Modelo modelo;
-    private Vista vista;
+    private VistaTexto vista;
 
-    public Controlador(Modelo modelo, Vista vista) {
+    public Controlador(Modelo modelo, VistaTexto vista) {
         if (modelo == null) {
             throw new NullPointerException("El modelo no puede ser nulo.");
         }
