@@ -87,7 +87,7 @@ public class Trabajos implements ITrabajos {
 
         }
         if (trabajoEncontrado == null) {
-            throw new TallerMecanicoExcepcion("No existe ningun trabajo abierto para dicho vehiculo.")
+            throw new TallerMecanicoExcepcion("No existe ningun trabajo abierto para dicho vehiculo.");
         }
         return trabajoEncontrado;
 
