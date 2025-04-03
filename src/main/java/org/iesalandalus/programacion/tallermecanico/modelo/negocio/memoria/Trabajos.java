@@ -100,7 +100,7 @@ public class Trabajos implements ITrabajos {
             mecanico.añadirPrecioMaterial(precioMaterial);
 
         } else {
-            throw new TallerMecanicoExcepcion("No se puede añadir precio para este tipo de trabajos.")
+            throw new TallerMecanicoExcepcion("No se puede añadir precio para este tipo de trabajos.");
         }
         return trabajoEncontrado;
     }
