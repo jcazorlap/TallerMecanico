@@ -1,19 +1,15 @@
 package org.iesalandalus.programacion.tallermecanico.modelo.dominio;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
-
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class Cliente {
 
-    private static final String ER_NOMBRE = "^[A-ZÁÉÍÓÚ][a-záéíóú]+( [A-ZÁÉÍÓÚ][a-záéíóú]+)*$";
-    private static final String ER_DNI = "^[0-9]{8}[A-HJ-NP-TV-Z]$";
-    private static final String ER_TELEFONO = "^[6-9]\\d{8}$";
+    private static final String ER_NOMBRE = "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+( [A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*$";
+    private static final String ER_DNI = "([0-9]{8})([A-Za-z])";
+    private static final String ER_TELEFONO = "([0-9]{9})";
 
-    private String nombre;
     private String dni;
+    private String nombre;
     private String telefono;
 
     public Cliente(String nombre, String dni, String telefono) {
@@ -23,12 +19,10 @@ public class Cliente {
     }
 
     public Cliente(Cliente cliente) {
-        if (cliente == null) {
-            throw new NullPointerException("No es posible copiar un cliente nulo.");
-        }
-        this.nombre = cliente.nombre;
-        this.dni = cliente.dni;
-        this.telefono = cliente.telefono;
+        Objects.requireNonNull(cliente, "No es posible copiar un cliente nulo.");
+        setNombre(cliente.getNombre());
+        setDni(cliente.getDni());
+        setTelefono(cliente.getTelefono());
     }
 
     public String getNombre() {
@@ -36,7 +30,8 @@ public class Cliente {
     }
 
     public void setNombre(String nombre) {
-        if (nombre == null || !Pattern.matches(ER_NOMBRE, nombre)) {
+        Objects.requireNonNull(nombre, "El nombre no puede ser nulo.");
+        if (!nombre.matches(ER_NOMBRE)) {
             throw new IllegalArgumentException("El nombre no tiene un formato válido.");
         }
         this.nombre = nombre;
@@ -47,17 +42,20 @@ public class Cliente {
     }
 
     private void setDni(String dni) {
-        if (dni == null || !Pattern.matches(ER_DNI, dni) || !comprobarLetraDni(dni)) {
+        Objects.requireNonNull(dni, "El DNI no puede ser nulo.");
+        if (!dni.matches(ER_DNI)) {
             throw new IllegalArgumentException("El DNI no tiene un formato válido.");
+        }
+        if (!ComprobarLetraDni(dni)) {
+            throw new IllegalArgumentException("La letra del DNI no es correcta.");
         }
         this.dni = dni;
     }
 
-    private boolean comprobarLetraDni(String dni) {
+    private boolean ComprobarLetraDni(String dni) {
         String letras = "TRWAGMYFPDXBNJZSQVHLCKE";
         int numero = Integer.parseInt(dni.substring(0, 8));
-        char letraCalculada = letras.charAt(numero % 23);
-        return Character.toUpperCase(dni.charAt(8)) == letraCalculada;
+        return dni.charAt(8) == letras.charAt(numero % 23);
     }
 
     public String getTelefono() {
@@ -65,20 +63,15 @@ public class Cliente {
     }
 
     public void setTelefono(String telefono) {
-        if (telefono == null || !Pattern.matches(ER_TELEFONO, telefono)) {
+        Objects.requireNonNull(telefono, "El teléfono no puede ser nulo.");
+        if (!telefono.matches(ER_TELEFONO)) {
             throw new IllegalArgumentException("El teléfono no tiene un formato válido.");
         }
         this.telefono = telefono;
     }
 
     public static Cliente get(String dni) {
-        if (dni == null) {
-            throw new NullPointerException("El DNI no puede ser nulo.");
-        }
-        if (!Pattern.matches(ER_DNI, dni) || !new Cliente("Test", dni, "600000000").comprobarLetraDni(dni)) {
-            throw new IllegalArgumentException("El DNI no tiene un formato válido.");
-        }
-        return new Cliente("Nombre Genérico", dni, "600000000");
+        return new Cliente("Raul", dni, "777777777");
     }
 
     @Override
@@ -86,12 +79,12 @@ public class Cliente {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cliente cliente = (Cliente) o;
-        return Objects.equals(dni, cliente.dni);
+        return Objects.equals(getDni(), cliente.getDni());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dni);
+        return Objects.hash(getDni());
     }
 
     @Override

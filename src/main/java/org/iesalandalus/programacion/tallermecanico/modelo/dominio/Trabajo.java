@@ -1,11 +1,14 @@
 package org.iesalandalus.programacion.tallermecanico.modelo.dominio;
 
 import org.iesalandalus.programacion.tallermecanico.modelo.TallerMecanicoExcepcion;
+import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
+import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+
 
 public abstract class Trabajo {
     public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -32,7 +35,7 @@ public abstract class Trabajo {
     }
 
     public static Trabajo copiar(Trabajo trabajo){
-        Objects.requireNonNull(trabajo,"El trabajo no puede ser nulo");
+        Objects.requireNonNull(trabajo,"El trabajo no puede ser nulo.");
         Trabajo copia = null;
         if (trabajo instanceof Revision ){
             copia = new Revision((Revision) trabajo);
@@ -42,8 +45,9 @@ public abstract class Trabajo {
         return copia;
     }
 
-    public Trabajo get(Vehiculo vehiculo){
-        return new Revision(Cliente.get("77489275K"), Vehiculo.get(vehiculo.matricula()), LocalDate.now());
+    public static Trabajo get(Vehiculo vehiculo){
+        Objects.requireNonNull(vehiculo,"El vehículo no puede ser nulo.");
+        return new Revision(Cliente.get("7748KKK"), vehiculo, LocalDate.now());
     }
 
     public abstract float getPrecioEspecifico();
@@ -97,8 +101,8 @@ public abstract class Trabajo {
         this.vehiculo = vehiculo;
     }
 
-    public void añadirHoras(int horas) throws TallerMecanicoExcepcion {
-        if (estaCerrada()) {
+    public void anadirHoras(int horas) throws TallerMecanicoExcepcion {
+        if (estaCerrado()) {
             throw new TallerMecanicoExcepcion("No se puede añadir horas, ya que el trabajo está cerrado.");
         }
         if (horas <= 0) {
@@ -107,19 +111,19 @@ public abstract class Trabajo {
         this.horas += horas;
     }
 
-    public boolean estaCerrada() {
+    public boolean estaCerrado() {
         return fechaFin != null;
     }
 
     public void cerrar(LocalDate fechaFin) throws TallerMecanicoExcepcion {
-        if (estaCerrada()) {
-            throw new TallerMecanicoExcepcion("La revisión ya está cerrada.");
+        if (estaCerrado()) {
+            throw new TallerMecanicoExcepcion("El trabajo ya está cerrado.");
         }
         setFechaFin(fechaFin);
     }
 
     private float getDias() {
-        if (!estaCerrada()) {
+        if (!estaCerrado()) {
             return 0;
         }
         return ChronoUnit.DAYS.between(fechaInicio, fechaFin);

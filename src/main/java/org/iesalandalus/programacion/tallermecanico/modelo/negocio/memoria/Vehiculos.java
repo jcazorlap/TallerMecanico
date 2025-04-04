@@ -2,14 +2,18 @@ package org.iesalandalus.programacion.tallermecanico.modelo.negocio.memoria;
 
 import org.iesalandalus.programacion.tallermecanico.modelo.TallerMecanicoExcepcion;
 import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
+import org.iesalandalus.programacion.tallermecanico.modelo.negocio.IVehiculos;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class Vehiculos implements org.iesalandalus.programacion.tallermecanico.modelo.negocio.IVehiculos {
-    private List<Vehiculo> coleccionVehiculos;
+public class Vehiculos implements IVehiculos {
+
+    private final List<Vehiculo> coleccionVehiculos;
 
     public Vehiculos() {
-        coleccionVehiculos = new ArrayList<>();
+        this.coleccionVehiculos = new ArrayList<>();
     }
 
     @Override
@@ -18,11 +22,14 @@ public class Vehiculos implements org.iesalandalus.programacion.tallermecanico.m
     }
 
     @Override
-    public void insertar(Vehiculo vehiculo) {
-        if (vehiculo == null) {
-            throw new NullPointerException("No se puede insertar un vehículo nulo.");
-        }
-        if (coleccionVehiculos.contains(vehiculo)) {
+    public Vehiculo get(String matricula) {
+        return null;
+    }
+
+    @Override
+    public void insertar(Vehiculo vehiculo) throws TallerMecanicoExcepcion {
+        Objects.requireNonNull(vehiculo, "No se puede insertar un vehículo nulo.");
+        if (buscar(vehiculo) != null) {
             throw new TallerMecanicoExcepcion("Ya existe un vehículo con esa matrícula.");
         }
         coleccionVehiculos.add(vehiculo);
@@ -30,21 +37,20 @@ public class Vehiculos implements org.iesalandalus.programacion.tallermecanico.m
 
     @Override
     public Vehiculo buscar(Vehiculo vehiculo) {
-        if (vehiculo == null) {
-            throw new NullPointerException("No se puede buscar un vehículo nulo.");
+        Objects.requireNonNull(vehiculo, "No se puede buscar un vehículo nulo.");
+        for (Vehiculo v : coleccionVehiculos) {
+            if (v.equals(vehiculo)) {
+                return v;
+            }
         }
-        int index = coleccionVehiculos.indexOf(vehiculo);
-        return (index != -1) ? coleccionVehiculos.get(index) : null;
+        return null;
     }
 
     @Override
-    public void borrar(Vehiculo vehiculo) {
-        if (vehiculo == null) {
-            throw new NullPointerException("No se puede borrar un vehículo nulo.");
-        }
+    public void borrar(Vehiculo vehiculo) throws TallerMecanicoExcepcion {
+        Objects.requireNonNull(vehiculo, "No se puede borrar un vehículo nulo.");
         if (!coleccionVehiculos.remove(vehiculo)) {
             throw new TallerMecanicoExcepcion("No existe ningún vehículo con esa matrícula.");
         }
     }
 }
-

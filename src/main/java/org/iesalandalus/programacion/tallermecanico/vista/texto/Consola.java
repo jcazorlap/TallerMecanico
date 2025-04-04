@@ -1,126 +1,94 @@
 package org.iesalandalus.programacion.tallermecanico.vista.texto;
 
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Revision;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
 import org.iesalandalus.programacion.tallermecanico.vista.eventos.Evento;
-
 import java.time.LocalDate;
+import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
-public class Consola {
+    public class Consola {
 
-    private static final String CADENA_FORMATO_FECHA = "dd/MM/yyyy";
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern(CADENA_FORMATO_FECHA);
-    private static final Scanner scanner = new Scanner(System.in);
+        private static final String CADENA_FORMATO_FECHA = "dd/MM/yyyy";
+        private static final Scanner scanner = new Scanner(System.in);
 
-    private Consola() {
-    }
+        private Consola() {}
 
-    public static void mostrarCabecera(String mensaje) {
-        System.out.println(mensaje);
-        System.out.println("-".repeat(mensaje.length()));
-    }
-
-    public static void mostrarMenu() {
-        mostrarCabecera("Gestión del Taller Mecánico");
-        for (Evento opcion : Evento.values()) {
-            System.out.println(opcion);
+        public static void mostrarCabecera(String mensaje) {
+            System.out.println(mensaje);
+            System.out.println("-".repeat(mensaje.length()));
         }
-    }
 
-    public static Evento elegirOpcion() {
-        int numeroOpcion;
-        do {
-            numeroOpcion = leerEntero("Elige una opción: ");
-        } while (!Evento.esValida(numeroOpcion));
-        return Evento.get(numeroOpcion);
-    }
+        public static void mostrarMenu() {
+            mostrarCabecera("Menú de Opciones");
 
-    private static int leerEntero(String mensaje) {
-        System.out.print(mensaje);
-        while (!scanner.hasNextInt()) {
-            scanner.next();
-            System.out.print("Entrada inválida. " + mensaje);
-        }
-        return scanner.nextInt();
-    }
-
-    private static float leerReal(String mensaje) {
-        System.out.print(mensaje);
-        while (!scanner.hasNextFloat()) {
-            scanner.next();
-            System.out.print("Entrada inválida. " + mensaje);
-        }
-        return scanner.nextFloat();
-    }
-
-    private static String leerCadena(String mensaje) {
-        System.out.print(mensaje);
-        return scanner.next();
-    }
-
-    private static LocalDate leerFecha(String mensaje) {
-        System.out.print(mensaje);
-        while (true) {
-            try {
-                return LocalDate.parse(scanner.next(), FORMATO_FECHA);
-            } catch (DateTimeParseException e) {
-                System.out.print("Formato incorrecto. " + mensaje);
+            for (Evento opcion : Evento.values()) {
+                System.out.println(opcion);
             }
         }
-    }
 
-    public static Cliente leerCliente() {
-        String nombre = leerCadena("Introduce el nombre del cliente: ");
-        String dni = leerCadena("Introduce el DNI del cliente: ");
-        String telefono = leerCadena("Introduce el teléfono del cliente: ");
-        return new Cliente(nombre, dni, telefono);
-    }
+        public static Evento elegirOpcion() {
+            Evento opcion = null;
+            do {
+                int opcionEntero = leerEntero("Elige una opción: ");
+                try {
+                    opcion = Evento.get(opcionEntero);
+                } catch (IllegalArgumentException e){
+                    System.out.println(e.getMessage());
+                }
+            } while (opcion == null);
+            return opcion;
+        }
 
-    public static Cliente leerClienteDni() {
-        String dni = leerCadena("Introduce el DNI del cliente: ");
-        return new Cliente("", dni, "");
-    }
+        private static int leerEntero(String mensaje) {
+            int numero = 0;
+            boolean valido = false;
+            do {
+                System.out.print(mensaje);
+                try {
+                    numero = Integer.parseInt(scanner.nextLine());
+                    valido = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Entrada inválida. Por favor, introduce un número entero.");
+                }
+            } while (!valido);
+            return numero;
+        }
 
-    public static String leerNuevoNombre() {
-        return leerCadena("Introduce el nuevo nombre del cliente: ");
-    }
+        private static float leerReal(String mensaje) {
+            float numero = 0;
+            boolean valido = false;
+            do {
+                System.out.print(mensaje);
+                try {
+                    numero = Float.parseFloat(scanner.nextLine());
+                    valido = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Entrada inválida. Por favor, introduce un número real.");
+                }
+            } while (!valido);
+            return numero;
+        }
 
-    public static String leerNuevoTelefono() {
-        return leerCadena("Introduce el nuevo teléfono del cliente: ");
-    }
+        private static String leerCadena(String mensaje) {
+            System.out.print(mensaje);
+            return scanner.nextLine();
+        }
 
-    public static Vehiculo leerVehiculo() {
-        String marca = leerCadena("Introduce la marca del vehículo: ");
-        String modelo = leerCadena("Introduce el modelo del vehículo: ");
-        String matricula = leerCadena("Introduce la matrícula del vehículo: ");
-        return new Vehiculo(marca, modelo, matricula);
-    }
+        static LocalDate leerFecha(String mensaje) {
+            LocalDate fecha = null;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CADENA_FORMATO_FECHA);
+            boolean valido = false;
+            do {
+                System.out.print(mensaje);
+                String entrada = scanner.nextLine();
+                try {
+                    fecha = LocalDate.parse(entrada, formatter);
+                    valido = true;
+                } catch (DateTimeParseException e) {
+                    System.out.println("Fecha inválida. Por favor, introduce la fecha en el formato " + CADENA_FORMATO_FECHA);
+                }
+            } while (!valido);
+            return fecha;
+        }
 
-    public static Vehiculo leerVehiculoMatricula() {
-        String matricula = leerCadena("Introduce la matrícula del vehículo: ");
-        return new Vehiculo("", "", matricula);
     }
-
-    public static Revision leerRevision() {
-        Cliente cliente = leerClienteDni();
-        Vehiculo vehiculo = leerVehiculoMatricula();
-        LocalDate fechaInicio = leerFecha("Introduce la fecha de inicio: ");
-        return new Revision(cliente, vehiculo, fechaInicio);
-    }
-
-    public static int leerHoras() {
-        return leerEntero("Introduce las horas a añadir: ");
-    }
-
-    public static float leerPrecioMaterial() {
-        return leerReal("Introduce el precio del material a añadir: ");
-    }
-
-    public static LocalDate leerFechaCierre() {
-        return leerFecha("Introduce la fecha de cierre: ");
-    }
-}

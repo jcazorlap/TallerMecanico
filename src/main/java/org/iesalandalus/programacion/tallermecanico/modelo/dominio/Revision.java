@@ -1,15 +1,15 @@
 package org.iesalandalus.programacion.tallermecanico.modelo.dominio;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+
+import static org.iesalandalus.programacion.tallermecanico.modelo.dominio.Mecanico.FACTOR_HORA;
 
 public class Revision extends Trabajo {
 
-    private static final float FACTOR_HORA = 35f;
+    private static final float FECHA_HORA = 10.0F;
 
     public Revision(Cliente cliente, Vehiculo vehiculo, LocalDate fechaInicio) {
-        super(cliente, vehiculo, fechaInicio);
+        super(cliente,vehiculo,fechaInicio);
     }
 
     public Revision(Revision revision) {
@@ -18,17 +18,15 @@ public class Revision extends Trabajo {
 
     @Override
     public float getPrecioEspecifico() {
-        return (estaCerrada()) ? FACTOR_HORA * getHoras() : 0;
+        return (estaCerrado()) ? FACTOR_HORA * getHoras() : 0;
     }
 
     @Override
     public String toString() {
-        String cadena;
-        if(!estaCerrada()) {
-            cadena = String.format("Revision -> %s - %s (%s - ): %d horas", getCliente(), getVehiculo(), getFechaInicio().format(FORMATO_FECHA), getHoras());
-        } else {
-            cadena = String.format("Revision -> %s - %s (%s - %s): %d horas, %.2f total", getCliente(), getVehiculo(), getFechaInicio().format(FORMATO_FECHA), getHoras());
-        }
-        return cadena;
+        String cadenaFechaFin = (getFechaFin() == null) ? "" : getFechaFin().format(FORMATO_FECHA);
+        float precio = getPrecioEspecifico();
+        String cadenaPrecio = estaCerrado() ? String.format(", %.2f € total", precio) : "";
+        return String.format("%s - %s: (%s - %s), %d horas, %.2f € total%s",
+                cliente, vehiculo, getFechaInicio().format(FORMATO_FECHA), cadenaFechaFin, getHoras(), precio, cadenaPrecio);
     }
 }

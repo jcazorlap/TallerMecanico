@@ -172,7 +172,7 @@ class TrabajosTest {
     }
 
     @Test
-    void añadirHorasTrabajoValidoHorasValidasAnadeHorasCorrectamente() {
+    void anadirHorasTrabajoValidoHorasValidasAnadeHorasCorrectamente() {
         assertDoesNotThrow(() -> trabajos.insertar(revision));
         assertDoesNotThrow(() -> trabajos.anadirHoras(revision, 10));
         when(revision.getHoras()).thenReturn(10);
@@ -181,14 +181,14 @@ class TrabajosTest {
     }
 
     @Test
-    void añadirHorasTrabajoNuloHorasValidasLanzaExcepcion() {
+    void anadirHorasTrabajoNuloHorasValidasLanzaExcepcion() {
         assertDoesNotThrow(() -> trabajos.insertar(revision));
         NullPointerException npe = assertThrows(NullPointerException.class, () -> trabajos.anadirHoras(null, 10));
         assertEquals("No puedo añadir horas a un trabajo nulo.", npe.getMessage());
     }
 
     @Test
-    void añadirHorasTrabajoNoExistenteHorasValidasLanzaExcepcion() {
+    void anadirHorasTrabajoNoExistenteHorasValidasLanzaExcepcion() {
         TallerMecanicoExcepcion tme = assertThrows(TallerMecanicoExcepcion.class, () -> trabajos.anadirHoras(revision, 10));
         assertEquals("No existe ningún trabajo abierto para dicho vehículo.", tme.getMessage());
     }

@@ -9,125 +9,125 @@ import org.iesalandalus.programacion.tallermecanico.modelo.negocio.ITrabajos;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 public class Trabajos implements ITrabajos {
 
-    private List<Trabajo> listaTrabajos;
+    private final List<Trabajo> trabajos;
 
     public Trabajos() {
-        listaTrabajos = new ArrayList<>();
+        this.trabajos = new ArrayList<>();
     }
 
     @Override
     public List<Trabajo> get() {
-        return new ArrayList<>(listaTrabajos);
+        return new ArrayList<>(trabajos);
     }
 
     @Override
     public List<Trabajo> get(Cliente cliente) {
-        Objects.requireNonNull(cliente, "El cliente no puede ser nulo.");
-        List<Trabajo> trabajosCliente = new ArrayList<>();
-        for (Trabajo trabajo : listaTrabajos) {
-            if (trabajo.getCliente().equals(cliente)) {
-                trabajosCliente.add(trabajo);
-            }
+        List<Trabajo> resultado = new ArrayList<>();
+        for (Trabajo t : trabajos) {
+            if (t.getCliente().equals(cliente)) resultado.add(t);
         }
-        return trabajosCliente;
+        return resultado;
     }
 
     @Override
     public List<Trabajo> get(Vehiculo vehiculo) {
-        Objects.requireNonNull(vehiculo, "El vehículo no puede ser nulo.");
-        List<Trabajo> trabajosVehiculo = new ArrayList<>();
-        for (Trabajo trabajo : listaTrabajos) {
-            if (trabajo.getVehiculo().equals(vehiculo)) {
-                trabajosVehiculo.add(trabajo);
-            }
+        List<Trabajo> resultado = new ArrayList<>();
+        for (Trabajo t : trabajos) {
+            if (t.getVehiculo().equals(vehiculo)) resultado.add(t);
         }
-        return trabajosVehiculo;
+        return resultado;
     }
 
     @Override
-    public void insertar(Trabajo trabajo) {
-        Objects.requireNonNull(trabajo, "El trabajo no puede ser nulo.");
+    public void insertar(Trabajo trabajo) throws TallerMecanicoExcepcion {
+        if (trabajo == null) throw new NullPointerException("No se puede insertar un trabajo nulo.");
         comprobarTrabajo(trabajo.getCliente(), trabajo.getVehiculo(), trabajo.getFechaInicio());
-        listaTrabajos.add(trabajo);
+        trabajos.add(trabajo);
     }
 
-    private void comprobarTrabajo(Cliente cliente, Vehiculo vehiculo, LocalDate fechaInicio) {
-        for (Trabajo trabajo : listaTrabajos) {
-            if (trabajo.getCliente().equals(cliente) && trabajo.getVehiculo().equals(vehiculo) && trabajo.getFechaInicio().equals(fechaInicio)) {
-                throw new TallerMecanicoExcepcion("Ya existe un trabajo con esos datos.");
+    private void comprobarTrabajo(Cliente cliente, Vehiculo vehiculo, LocalDate fechaInicio) throws TallerMecanicoExcepcion {
+        for (Trabajo t : trabajos) {
+            if (!t.estaCerrado()) {
+                if (t.getCliente().equals(cliente)) {
+                    throw new TallerMecanicoExcepcion("El cliente tiene otro trabajo en curso.");
+                }
+                if (t.getVehiculo().equals(vehiculo)) {
+                    throw new TallerMecanicoExcepcion("El vehículo está actualmente en el taller.");
+                }
+            } else {
+                LocalDate fechaFinTrabajo = t.getFechaFin();
+                if (fechaFinTrabajo != null) {
+                    if (fechaFinTrabajo.isAfter(fechaInicio)) {
+                        if (t.getCliente().equals(cliente)) {
+                            throw new TallerMecanicoExcepcion("El cliente tiene otro trabajo posterior");
+                    }
+                    if (t.getVehiculo().equals(vehiculo)) {
+                        throw new TallerMecanicoExcepcion("El vehiculo tiene otro trabajo posterior.");
+                    }
+                    } else if (fechaFinTrabajo.isEqual(fechaInicio)) {
+                        if (t.getCliente().equals(cliente)) {
+                            throw new TallerMecanicoExcepcion("El cliente tiene otro trabajo posterior.");
+                        }
+                        if (t.getVehiculo().equals(vehiculo)) {
+                            throw new TallerMecanicoExcepcion("El vehículo tiene otro trabajo posterior.");
+                        }
+                    }
+                }
             }
         }
     }
 
     @Override
-    public Trabajo añadirHoras(Trabajo trabajo, int horas) {
-        Trabajo trabajoAbierto = getTrabajoAbierto(trabajo.getVehiculo());
-        if (trabajoAbierto != null) {
-            trabajoAbierto.añadirHoras(horas);
-            return trabajoAbierto;
-        }
-        throw new TallerMecanicoExcepcion("No hay un trabajo abierto para ese vehículo.");
+    public Trabajo anadirHoras(Trabajo trabajo, int horas) throws TallerMecanicoExcepcion {
+        if (trabajo == null) throw new NullPointerException("No puedo añadir horas a un trabajo nulo.");
+        Trabajo t = getTrabajoAbierto(trabajo.getVehiculo());
+        if (t == null) throw new TallerMecanicoExcepcion("No existe ningún trabajo abierto para dicho vehículo.");
+        t.anadirHoras(horas);
+        return t;
     }
 
     private Trabajo getTrabajoAbierto(Vehiculo vehiculo) {
-        Objects.requireNonNull(vehiculo, "No puedo operar sobre un vehículo nulo");
-        Trabajo trabajoEncontrado = null;
-        Iterator<Trabajo> iteradorTrabajos = coleccionTrabajos.iterator();
-        while (iteradorTrabajos.hasNext() && trabajoEncontrado == null) {
-            Trabajo trabajo = iteradorTrabajos.next();
-            if (trabajo.getVehiculo().equals(vehiculo) && !trabajo.estaCerrada()) {
-                trabajoEncontrado = trabajo;
-            }
-
+        for (Trabajo t : trabajos) {
+            if (t.getVehiculo().equals(vehiculo) && !t.estaCerrado()) return t;
         }
-        if (trabajoEncontrado == null) {
-            throw new TallerMecanicoExcepcion("No existe ningun trabajo abierto para dicho vehiculo.");
-        }
-        return trabajoEncontrado;
-
+        return null;
     }
 
     @Override
-    public Trabajo añadirPrecioMaterial(Trabajo trabajo, float precioMaterial) {
-        Trabajo trabajoEncontrado = getTrabajoAbierto(trabajo.getVehiculo());
-        if (trabajoEncontrado instanceof Mecanico mecanico) {
-            mecanico.añadirPrecioMaterial(precioMaterial);
-
-        } else {
-            throw new TallerMecanicoExcepcion("No se puede añadir precio para este tipo de trabajos.");
-        }
-        return trabajoEncontrado;
+    public Trabajo anadirPrecioMaterial(Trabajo trabajo, float precioMaterial) throws TallerMecanicoExcepcion {
+        if (trabajo == null) throw new NullPointerException("No puedo añadir precio del material a un trabajo nulo.");
+        Trabajo t = getTrabajoAbierto(trabajo.getVehiculo());
+        if (t == null) throw new TallerMecanicoExcepcion("No existe ningún trabajo abierto para dicho vehículo.");
+        if (!(t instanceof Mecanico)) throw new TallerMecanicoExcepcion("No se puede añadir precio al material para este tipo de trabajos.");
+        ((Mecanico) t).anadirPrecioMaterial(precioMaterial);
+        return t;
     }
 
     @Override
-    public Trabajo cerrar(Trabajo trabajo) {
-        Trabajo trabajoAbierto = getTrabajoAbierto(trabajo.getVehiculo());
-        if (trabajoAbierto != null) {
-            trabajoAbierto.cerrar(LocalDate.now());
-            return trabajoAbierto;
-        }
-        throw new TallerMecanicoExcepcion("No hay un trabajo abierto para ese vehículo.");
+    public Trabajo cerrar(Trabajo trabajo, LocalDate fechaFin) throws TallerMecanicoExcepcion {
+        if (trabajo == null) throw new NullPointerException("No puedo cerrar un trabajo nulo.");
+        Trabajo t = getTrabajoAbierto(trabajo.getVehiculo());
+        if (t == null) throw new TallerMecanicoExcepcion("No existe ningún trabajo abierto para dicho vehículo.");
+        t.cerrar(fechaFin);
+        return t;
     }
 
     @Override
     public Trabajo buscar(Trabajo trabajo) {
-        Objects.requireNonNull(trabajo, "El trabajo no puede ser nulo.");
-        int index = listaTrabajos.indexOf(trabajo);
-        return (index != -1) ? listaTrabajos.get(index) : null;
+        if (trabajo == null) throw new NullPointerException("No se puede buscar un trabajo nulo.");
+        for (Trabajo t : trabajos) {
+            if (t.equals(trabajo)) return t;
+        }
+        return null;
     }
 
     @Override
-    public void borrar(Trabajo trabajo) {
-        Objects.requireNonNull(trabajo, "El trabajo no puede ser nulo.");
-        if (!listaTrabajos.remove(trabajo)) {
-            throw new TallerMecanicoExcepcion("No se pudo borrar el trabajo porque no existe.");
-        }
+    public void borrar(Trabajo trabajo) throws TallerMecanicoExcepcion {
+        if (trabajo == null) throw new NullPointerException("No se puede borrar un trabajo nulo.");
+        if (!trabajos.remove(trabajo)) throw new TallerMecanicoExcepcion("No existe ningún trabajo igual.");
     }
 }
-

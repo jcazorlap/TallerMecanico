@@ -1,16 +1,13 @@
 package org.iesalandalus.programacion.tallermecanico.modelo;
 
 import org.iesalandalus.programacion.tallermecanico.modelo.cascada.ModeloCascada;
-import org.iesalandalus.programacion.tallermecanico.modelo.negocio.IFuenteDatos;
-import org.iesalandalus.programacion.tallermecanico.modelo.negocio.memoria.FuenteDatosMemoria;
+import org.iesalandalus.programacion.tallermecanico.modelo.negocio.*;
 
 public enum FabricaModelo {
-    MEMORIA {
-        @Override
-        public Modelo crear() {
-            return new ModeloCascada();
-        }
-    };
 
-    public abstract Modelo crear();
+    CASCADA;
+
+    public Modelo crear(FabricaFuenteDatos fabricaFuenteDatos) {
+        return new ModeloCascada(fabricaFuenteDatos);
+    }
 }
