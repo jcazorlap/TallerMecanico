@@ -18,6 +18,7 @@ public class Controlador implements IControlador {
         this.vista.getGestorEventos().suscribir(this,Evento.values());
     }
 
+
     @Override
     public void comenzar() {
         modelo.comenzar();
