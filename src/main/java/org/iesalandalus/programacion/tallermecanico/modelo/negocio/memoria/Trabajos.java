@@ -1,15 +1,11 @@
 package org.iesalandalus.programacion.tallermecanico.modelo.negocio.memoria;
 
 import org.iesalandalus.programacion.tallermecanico.modelo.TallerMecanicoExcepcion;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Cliente;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Mecanico;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Trabajo;
-import org.iesalandalus.programacion.tallermecanico.modelo.dominio.Vehiculo;
+import org.iesalandalus.programacion.tallermecanico.modelo.dominio.*;
 import org.iesalandalus.programacion.tallermecanico.modelo.negocio.ITrabajos;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Trabajos implements ITrabajos {
 
@@ -42,6 +38,26 @@ public class Trabajos implements ITrabajos {
         return resultado;
     }
 
+    public Map<TipoTrabajo, Integer> getEstadisticasMensuales(LocalDate mes) {
+        Map<TipoTrabajo, Integer> estadisticas = inicializarEstadisticas();
+
+        for (Trabajo trabajo : trabajos) {
+            if (trabajo.getFechaInicio().getYear() == mes.getYear() && trabajo.getFechaInicio().getMonth() == mes.getMonth()) {
+                TipoTrabajo tipoTrabajo = TipoTrabajo.get(trabajo);
+                estadisticas.put(tipoTrabajo, estadisticas.get(tipoTrabajo) + 1);
+            }
+        }
+        return estadisticas;
+    }
+
+    private Map<TipoTrabajo, Integer> inicializarEstadisticas() {
+        Map<TipoTrabajo, Integer> estadisticas = new EnumMap<>(TipoTrabajo.class);
+        for (TipoTrabajo tipo : TipoTrabajo.values()) {
+            estadisticas.put(tipo, 0);
+        }
+        return estadisticas;
+    }
+
     @Override
     public void insertar(Trabajo trabajo) throws TallerMecanicoExcepcion {
         if (trabajo == null) throw new NullPointerException("No se puede insertar un trabajo nulo.");
@@ -64,10 +80,10 @@ public class Trabajos implements ITrabajos {
                     if (fechaFinTrabajo.isAfter(fechaInicio)) {
                         if (t.getCliente().equals(cliente)) {
                             throw new TallerMecanicoExcepcion("El cliente tiene otro trabajo posterior");
-                    }
-                    if (t.getVehiculo().equals(vehiculo)) {
-                        throw new TallerMecanicoExcepcion("El vehiculo tiene otro trabajo posterior.");
-                    }
+                        }
+                        if (t.getVehiculo().equals(vehiculo)) {
+                            throw new TallerMecanicoExcepcion("El vehículo tiene otro trabajo posterior.");
+                        }
                     } else if (fechaFinTrabajo.isEqual(fechaInicio)) {
                         if (t.getCliente().equals(cliente)) {
                             throw new TallerMecanicoExcepcion("El cliente tiene otro trabajo posterior.");
