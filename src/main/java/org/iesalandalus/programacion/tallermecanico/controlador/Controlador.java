@@ -6,6 +6,7 @@ import org.iesalandalus.programacion.tallermecanico.modelo.negocio.FabricaFuente
 import org.iesalandalus.programacion.tallermecanico.vista.FabricaVista;
 import org.iesalandalus.programacion.tallermecanico.vista.Vista;
 import org.iesalandalus.programacion.tallermecanico.vista.eventos.Evento;
+
 import java.util.Objects;
 
 public class Controlador implements IControlador {
@@ -19,7 +20,7 @@ public class Controlador implements IControlador {
         Objects.requireNonNull(fabricaFuenteDatos,"ERROR: la fuente de datos no puede ser nula.");
         this.modelo = fabricaModelo.crear(FabricaFuenteDatos.MEMORIA);
         this.vista = fabricaVista.crear();
-        this.vista.getGestorEventos().suscribir(this,Evento.values());
+        this.vista.getGestorEventos().suscribir(this, Evento.values());
     }
 
     @Override
@@ -40,9 +41,9 @@ public class Controlador implements IControlador {
             String resultado = "";
             switch (evento) {
                 case INSERTAR_CLIENTE -> {modelo.insertar(vista.leerCliente()); resultado = "Cliente insertado correctamente.";}
-                case INSERTAR_VEHICULO -> {modelo.insertar(vista.leerVehiculo()); resultado = "Vehiculo insertado correctamente.";}
-                case INSERTAR_REVISION -> {modelo.insertar(vista.leerRevision()); resultado = "Revision insertada correctamente.";}
-                case INSERTAR_MECANICO -> {modelo.insertar(vista.leerMecanico()); resultado = "Mecanico insertado correctamente.";}
+                case INSERTAR_VEHICULO -> {modelo.insertar(vista.leerVehiculo()); resultado = "Vehículo insertado correctamente.";}
+                case INSERTAR_REVISION -> {modelo.insertar(vista.leerRevision()); resultado = "Revisión insertada correctamente.";}
+                case INSERTAR_MECANICO -> {modelo.insertar(vista.leerMecanico()); resultado = "Mecánico insertado correctamente.";}
                 case BUSCAR_CLIENTE -> vista.mostrarCliente(modelo.buscar(vista.leerClienteDni()));
                 case BUSCAR_VEHICULO -> vista.mostrarVehiculo(modelo.buscar(vista.leerVehiculoMatricula()));
                 case BUSCAR_TRABAJO -> vista.mostrarTrabajo(modelo.buscar(vista.leerRevision()));
@@ -50,20 +51,22 @@ public class Controlador implements IControlador {
                 case ANADIR_HORAS_TRABAJO -> {modelo.anadirHoras(vista.leerTrabajoVehiculo(), vista.leerHoras()); resultado = "Horas añadidas correctamente";}
                 case ANADIR_PRECIO_MATERIAL_TRABAJO -> {modelo.anadirPrecioMaterial(vista.leerTrabajoVehiculo(), vista.leerPrecioMaterial()); resultado = "Precio del material introducido correctamente";}
                 case CERRAR_TRABAJO -> {modelo.cerrar(vista.leerTrabajoVehiculo(), vista.leerFechaCierre()); resultado = "Trabajo cerrado correctamente";}
-                case BORRAR_CLIENTE -> {modelo.borrar(vista.leerClienteDni()); resultado = "Cliente eliminado correctammente.";}
-                case BORRAR_VEHICULO -> {modelo.borrar(vista.leerVehiculoMatricula()); resultado = "Vehiculo eliminado correctamente.";}
+                case BORRAR_CLIENTE -> {modelo.borrar(vista.leerClienteDni()); resultado = "Cliente eliminado correctamente.";}
+                case BORRAR_VEHICULO -> {modelo.borrar(vista.leerVehiculoMatricula()); resultado = "Vehículo eliminado correctamente.";}
                 case BORRAR_TRABAJO -> {modelo.borrar(vista.leerRevision()); resultado = "Trabajo eliminado correctamente.";}
                 case LISTAR_CLIENTES -> vista.mostrarClientes(modelo.getClientes());
                 case LISTAR_VEHICULOS -> vista.mostrarVehiculos(modelo.getVehiculos());
                 case LISTAR_TRABAJOS -> vista.mostrarTrabajos(modelo.getTrabajos());
                 case LISTAR_TRABAJOS_CLIENTE -> vista.mostrarTrabajos(modelo.getTrabajos(vista.leerClienteDni()));
                 case LISTAR_TRABAJOS_VEHICULO -> vista.mostrarTrabajos(modelo.getTrabajos(vista.leerVehiculoMatricula()));
+
             }
             if (!resultado.isBlank()) {
-                vista.notificarResultado(evento,resultado, true);
+                vista.notificarResultado(evento, resultado, true);
             }
         } catch (Exception e) {
             vista.notificarResultado(evento, e.getMessage(), false);
         }
     }
 }
+

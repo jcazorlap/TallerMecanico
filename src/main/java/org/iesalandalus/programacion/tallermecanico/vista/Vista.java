@@ -37,4 +37,5 @@ public interface Vista {
     void mostrarClientes(List<Cliente> clientes);
     void mostrarVehiculos(List<Vehiculo> vehiculos);
     void mostrarTrabajos(List<Trabajo> trabajos);
+
 }

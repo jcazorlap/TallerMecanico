@@ -24,7 +24,8 @@ public enum Evento {
     ANADIR_HORAS_TRABAJO("Anadir Horas Trabajo",17),
     ANADIR_PRECIO_MATERIAL_TRABAJO("Anadir Precio Material Trabajo",18),
     CERRAR_TRABAJO("Cerrar",19),
-    SALIR("Salir",20);
+    LISTAR_ESTADISTICAS_MENSUALES("Listar Estadísticas Mensuales", 20),
+    SALIR("Salir",21);
 
     private final int codigo;
     private final String texto;
@@ -44,6 +45,7 @@ public enum Evento {
     public static boolean esValido(int codigo) {
         return eventos.containsKey(codigo);
     }
+
     public static Evento get(int codigo) {
         if (!esValido(codigo)) {
             throw new IllegalArgumentException("El código no es correcto.");

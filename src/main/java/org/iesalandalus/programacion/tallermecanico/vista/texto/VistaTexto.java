@@ -181,4 +181,6 @@ public class VistaTexto implements Vista {
             System.out.println(trabajo);
         }
     }
+
+
 }
