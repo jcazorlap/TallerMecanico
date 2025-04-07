@@ -4,8 +4,11 @@ import org.iesalandalus.programacion.tallermecanico.modelo.dominio.*;
 import org.iesalandalus.programacion.tallermecanico.vista.Vista;
 import org.iesalandalus.programacion.tallermecanico.vista.eventos.Evento;
 import org.iesalandalus.programacion.tallermecanico.vista.eventos.GestorEventos;
+import org.iesalandalus.programacion.utilidades.Entrada;
+
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class VistaTexto implements Vista {
@@ -129,9 +132,27 @@ public class VistaTexto implements Vista {
     }
 
     @Override
-    public void notificarResultado(Evento evento, String texto, boolean exito) {
+    public LocalDate leerMes() {
+        LocalDate fechaMes = null;
+        boolean esValido = false;
 
+        while (!esValido) {
+            try {
+                String entrada = Entrada.cadena("Introduce el mes y año (MM-YYYY): ");
+                String[] partes = entrada.split("-");
+                int mes = Integer.parseInt(partes[0]);
+                int anio = Integer.parseInt(partes[1]);
+                fechaMes = LocalDate.of(anio, mes, 1);
+                esValido = true;
+            } catch (Exception e) {
+                System.out.println("Formato incorrecto. Usa MM-YYYY con números válidos.");
+            }
+        }
+
+        return fechaMes;
     }
+
+
 
     @Override
     public void notificarResultado(boolean exito, String texto, Evento evento) {
@@ -181,6 +202,21 @@ public class VistaTexto implements Vista {
             System.out.println(trabajo);
         }
     }
+
+    @Override
+    public void mostrarEstadisticasMensuales(Map<TipoTrabajo, Integer> estadisticas) {
+        if (estadisticas.isEmpty()) {
+            System.out.println("No hay estadísticas mensuales para mostrar.");
+        } else {
+            System.out.println("Estadísticas mensuales:");
+            for (Map.Entry<TipoTrabajo, Integer> entry : estadisticas.entrySet()) {
+                TipoTrabajo tipoTrabajo = entry.getKey();
+                Integer cantidad = entry.getValue();
+                System.out.println(tipoTrabajo + ": " + cantidad + " trabajos realizados.");
+            }
+        }
+    }
+
 
 
 }

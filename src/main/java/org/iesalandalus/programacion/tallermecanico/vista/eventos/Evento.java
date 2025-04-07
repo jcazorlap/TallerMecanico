@@ -24,7 +24,7 @@ public enum Evento {
     ANADIR_HORAS_TRABAJO("Anadir Horas Trabajo",17),
     ANADIR_PRECIO_MATERIAL_TRABAJO("Anadir Precio Material Trabajo",18),
     CERRAR_TRABAJO("Cerrar",19),
-    LISTAR_ESTADISTICAS_MENSUALES("Listar Estadísticas Mensuales", 20),
+    MOSTRAR_ESTADISTICAS_MENSUALES("Listar Estadísticas Mensuales", 20),
     SALIR("Salir",21);
 
     private final int codigo;
